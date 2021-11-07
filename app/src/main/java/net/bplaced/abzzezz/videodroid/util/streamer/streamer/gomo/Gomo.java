@@ -44,6 +44,7 @@ public class Gomo extends Streamer implements MoviesCoAPI {
             String result = runtime.executeStringScript(s);
             runtime.release();
 
+
             final Connection.Response decodingAPIResp = Jsoup.connect(DECODING_API)
                     .method(Connection.Method.POST)
                     .data("tokenCode", tcGroup)
