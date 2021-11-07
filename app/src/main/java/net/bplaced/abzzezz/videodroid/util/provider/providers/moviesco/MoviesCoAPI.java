@@ -24,6 +24,11 @@ public interface MoviesCoAPI {
     Pattern DIRECT_DOWNLOAD_LINK_PATTERN = Pattern.compile("<a href=\"([^\"]+)\">Direct Download Link</a>", Pattern.MULTILINE);
 
 
+    Pattern SLICE_PATTERN = Pattern.compile("slice\\((\\d),(\\d+)\\)");
+
+    Pattern RND_NUM_PATTERN = Pattern.compile("\\+ \"(\\d+)\"\\+\"(\\d+)");
+
+
     default String formatTvRequest(final TVShow tvShow, final int season, final int episode) {
         //https://www1.123movies.co/episode/peaky-blinders-1x2/watching.html
         return BASE_URL + TV_ENDPOINT + StringUtil.dashes(tvShow.getTitle()) + "-" + season + "x" + episode + "/watching.html";

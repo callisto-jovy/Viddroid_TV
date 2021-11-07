@@ -16,6 +16,5 @@
 
 - [JSON](https://mvnrepository.com/artifact/org.json/json) to decode & encode JSON data
 - [JSOUP](https://mvnrepository.com/artifact/org.jsoup/jsoup) to parse HTML
-- [J2V8](https://mvnrepository.com/artifact/com.eclipsesource.j2v8/j2v8) to evaluate JS locally (will be removed soon)
 - [Exoplayer](https://github.com/google/ExoPlayer) to play the content
 - [Exoplayer leanback]() required for exoplayer to work on Android-TV
