@@ -1,5 +1,6 @@
 package net.bplaced.abzzezz.videodroid.util.streamer;
 
+import net.bplaced.abzzezz.videodroid.util.streamer.streamer.apidmb.ApiMdb;
 import net.bplaced.abzzezz.videodroid.util.streamer.streamer.gomo.Gomo;
 import net.bplaced.abzzezz.videodroid.util.streamer.streamer.mixdrop.MixDrop;
 import net.bplaced.abzzezz.videodroid.util.streamer.streamer.streamsb.StreamSb;
@@ -9,8 +10,9 @@ public enum Streamers {
 
     VID_CLOUD("vidcloud", new Vidcloud()),
     STREAM_SB("streamsb", new StreamSb()),
-    //DOOD_STREAM("doodstream", new DoodStream()),
+    // DOOD_STREAM("doodstream", new DoodStream()),
     MIX_DROP("mixdrop", new MixDrop()),
+    API_MDB("apimdb", new ApiMdb()),
     GOMO("gomo", new Gomo());
 
 

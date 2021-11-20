@@ -2,7 +2,6 @@ package net.bplaced.abzzezz.videodroid.util.streamer.streamer.streamsb;
 
 import android.util.Log;
 import net.bplaced.abzzezz.videodroid.util.Constant;
-import net.bplaced.abzzezz.videodroid.util.array.ArrayUtil;
 import net.bplaced.abzzezz.videodroid.util.connection.ParcelableWatchableURLConnection;
 import net.bplaced.abzzezz.videodroid.util.provider.providers.moviesco.MoviesCoAPI;
 import net.bplaced.abzzezz.videodroid.util.streamer.Streamer;
@@ -11,6 +10,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -18,15 +20,15 @@ import java.util.regex.Matcher;
 public class StreamSb extends Streamer {
 
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String url, final String[]... headers) throws JSONException {
-        url = url.replace("/play/", "/d/");
-        Log.d("Stream SB-Streamer URL", url);
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String referral, final Optional<Map<String, String>> headers) throws JSONException {
+        referral = referral.replace("/play/", "/d/");
+        Log.d("Stream SB-Streamer URL", referral);
 
         final Document document;
         try {
-            document = Jsoup.connect(url)
+            document = Jsoup.connect(referral)
                     .userAgent(Constant.USER_AGENT)
-                    .headers(ArrayUtil.stringArrayToMap(headers))
+                    .headers(headers.orElseGet(HashMap::new))
                     .get();
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,7 +53,7 @@ public class StreamSb extends Streamer {
             try {
                 Document content = Jsoup.connect(format)
                         .userAgent(Constant.USER_AGENT)
-                        .header("Referer", url)
+                        .header("Referer", referral)
                         .get();
 
                 final Matcher directDownloadLinkMatcher = MoviesCoAPI.DIRECT_DOWNLOAD_LINK_PATTERN.matcher(content.toString());
@@ -59,7 +61,7 @@ public class StreamSb extends Streamer {
                 if (directDownloadLinkMatcher.find()) {
                     return Optional.of(new ParcelableWatchableURLConnection(
                             directDownloadLinkMatcher.group(1),
-                            new String[]{"Referer", format}));
+                            Collections.singletonMap("Referer", format)));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

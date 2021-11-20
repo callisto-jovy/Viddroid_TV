@@ -7,11 +7,11 @@ import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.Presenter;
 import com.bumptech.glide.Glide;
 import net.bplaced.abzzezz.videodroid.R;
-import net.bplaced.abzzezz.videodroid.util.watchable.Episode;
+import net.bplaced.abzzezz.videodroid.util.ui.CardPresentable;
 
-public class CardEpisodePresenter extends Presenter {
+public class CardPresenter extends Presenter {
 
-    private static final String TAG = "CardEpisodePresenter";
+    private static final String TAG = "CardPresenter";
 
     private static final int CARD_WIDTH = 300;
     private static final int CARD_HEIGHT = 450;
@@ -54,22 +54,21 @@ public class CardEpisodePresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
-        final Episode episode = (Episode) item;
+        final CardPresentable cardPresentable = (CardPresentable) item;
 
         final ImageCardView cardView = (ImageCardView) viewHolder.view;
 
         Log.d(TAG, "onBindViewHolder");
 
-        if (episode.getSeasonPoster() != null) {
-            cardView.setTitleText("Episode " + episode.getIndex());
-            cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
+        cardView.setTitleText(cardPresentable.getCardTitleText());
+        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);
 
-            Glide.with(viewHolder.view.getContext())
-                    .load(episode.getSeasonPoster())
-                    .centerCrop()
-                    .error("https://www.themoviedb.org/assets/2/apple-touch-icon-cfba7699efe7a742de25c28e08c38525f19381d31087c69e89d6bcb8e3c0ddfa.png")
-                    .into(cardView.getMainImageView());
-        }
+        Glide.with(viewHolder.view.getContext())
+                .load(cardPresentable.getPoster() != null ? cardPresentable.getPoster() : "https://www.themoviedb.org/assets/2/apple-touch-icon-cfba7699efe7a742de25c28e08c38525f19381d31087c69e89d6bcb8e3c0ddfa.png")
+                .centerCrop()
+                .error("https://www.themoviedb.org/assets/2/apple-touch-icon-cfba7699efe7a742de25c28e08c38525f19381d31087c69e89d6bcb8e3c0ddfa.png")
+                .into(cardView.getMainImageView());
+
     }
 
     @Override

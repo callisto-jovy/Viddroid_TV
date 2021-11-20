@@ -2,9 +2,10 @@ package net.bplaced.abzzezz.videodroid.ui.error;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import androidx.core.content.ContextCompat;
 import net.bplaced.abzzezz.videodroid.R;
+
+import java.util.Objects;
 
 /*
  * This class demonstrates how to extend ErrorFragment
@@ -27,11 +28,6 @@ public class ErrorFragment extends androidx.leanback.app.ErrorSupportFragment {
 
         setButtonText(getResources().getString(R.string.dismiss_error));
         setButtonClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                        getFragmentManager().beginTransaction().remove(ErrorFragment.this).commit();
-                    }
-                });
+                arg0 -> Objects.requireNonNull(getFragmentManager()).beginTransaction().remove(ErrorFragment.this).commit());
     }
 }

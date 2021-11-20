@@ -9,11 +9,21 @@ import java.util.Map;
 
 public class ParcelableWatchableURLConnection implements Parcelable {
 
+    public static final Creator<ParcelableWatchableURLConnection> CREATOR = new Creator<ParcelableWatchableURLConnection>() {
+        @Override
+        public ParcelableWatchableURLConnection createFromParcel(Parcel in) {
+            return new ParcelableWatchableURLConnection(in);
+        }
+
+        @Override
+        public ParcelableWatchableURLConnection[] newArray(int size) {
+            return new ParcelableWatchableURLConnection[size];
+        }
+    };
     private final String url;
     private final int readTimeout;
     private final int connectTimeout;
     private Map<String, String> headers;
-
 
     public ParcelableWatchableURLConnection(final String url, final int readTimeout, final int connectTimeout, final String[]... requestHeaders) {
         this.url = url;
@@ -22,9 +32,9 @@ public class ParcelableWatchableURLConnection implements Parcelable {
         this.connectTimeout = connectTimeout;
     }
 
-    public ParcelableWatchableURLConnection(final String url, final String[]... requestHeaders) {
+    public ParcelableWatchableURLConnection(final String url, final Map<String, String> requestHeaders) {
         this.url = url;
-        this.headers = ArrayUtil.stringArrayToMap(requestHeaders);
+        this.headers = requestHeaders;
         this.readTimeout = 0;
         this.connectTimeout = 0;
     }
@@ -40,18 +50,6 @@ public class ParcelableWatchableURLConnection implements Parcelable {
             headers.put(in.readString(), in.readString());
         }
     }
-
-    public static final Creator<ParcelableWatchableURLConnection> CREATOR = new Creator<ParcelableWatchableURLConnection>() {
-        @Override
-        public ParcelableWatchableURLConnection createFromParcel(Parcel in) {
-            return new ParcelableWatchableURLConnection(in);
-        }
-
-        @Override
-        public ParcelableWatchableURLConnection[] newArray(int size) {
-            return new ParcelableWatchableURLConnection[size];
-        }
-    };
 
     @Override
     public int describeContents() {

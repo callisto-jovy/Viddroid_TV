@@ -1,4 +1,4 @@
-package net.bplaced.abzzezz.videodroid.util.provider.providers.bestmovieswatch;
+package net.bplaced.abzzezz.videodroid.util.provider.providers.bestmovies;
 
 import net.bplaced.abzzezz.videodroid.util.connection.ParcelableWatchableURLConnection;
 import net.bplaced.abzzezz.videodroid.util.provider.Provider;
@@ -6,18 +6,20 @@ import net.bplaced.abzzezz.videodroid.util.task.TaskExecutor;
 import net.bplaced.abzzezz.videodroid.util.task.tasks.movie.BestMoviesWatchRequestMovieLinkTask;
 import net.bplaced.abzzezz.videodroid.util.watchable.Movie;
 import net.bplaced.abzzezz.videodroid.util.watchable.TVShow;
+import net.bplaced.abzzezz.videodroid.util.watchable.models.Episode;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BestMoviesWatch extends Provider {
 
+
     @Override
-    public void requestMovieLink(final Movie movie, final Consumer<Optional<ParcelableWatchableURLConnection>> directLink) {
-        new BestMoviesWatchRequestMovieLinkTask(movie).executeAsync(new TaskExecutor.Callback<Optional<ParcelableWatchableURLConnection>>() {
+    public void requestMovieLink(Movie watchable, Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer, Consumer<String> exceptionConsumer) {
+        new BestMoviesWatchRequestMovieLinkTask(watchable).executeAsync(new TaskExecutor.Callback<Optional<ParcelableWatchableURLConnection>>() {
             @Override
             public void onComplete(final Optional<ParcelableWatchableURLConnection> result) {
-                directLink.accept(result);
+                directConnectionConsumer.accept(result);
             }
 
             @Override
@@ -27,13 +29,13 @@ public class BestMoviesWatch extends Provider {
 
             @Override
             public void exceptionCaught(Exception e) {
-                directLink.accept(Optional.empty());
+                exceptionConsumer.accept(e.getLocalizedMessage());
             }
         });
     }
 
     @Override
-    public void requestTVLink(final TVShow tvShow, final int season, final int episode, final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer) {
+    public void requestTVLink(TVShow watchable, Episode episode, Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer, Consumer<String> exceptionConsumer) {
         directConnectionConsumer.accept(Optional.empty()); //Bestmovies.watch does not have tv-shows
     }
 }

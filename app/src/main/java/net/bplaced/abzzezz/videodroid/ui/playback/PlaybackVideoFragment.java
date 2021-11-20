@@ -15,9 +15,12 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import net.bplaced.abzzezz.videodroid.ui.details.DetailsActivity;
 import net.bplaced.abzzezz.videodroid.util.Constant;
+import net.bplaced.abzzezz.videodroid.util.IntentHelper;
 import net.bplaced.abzzezz.videodroid.util.connection.ParcelableWatchableURLConnection;
 import net.bplaced.abzzezz.videodroid.util.string.StringUtil;
 import net.bplaced.abzzezz.videodroid.util.watchable.Watchable;
+
+import java.util.Objects;
 
 /**
  * Handles video playback with media controls.
@@ -26,27 +29,26 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
 
     private PlaybackTransportControlGlue<LeanbackPlayerAdapter> mTransportControlGlue;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final Watchable watchable = (Watchable) getActivity().getIntent().getSerializableExtra(DetailsActivity.WATCHABLE);
+
+        final Watchable watchable = (Watchable) IntentHelper.getObjectForKey(DetailsActivity.WATCHABLE);
         final ParcelableWatchableURLConnection parcelableWatchableURLConnection = getActivity().getIntent().getParcelableExtra(DetailsActivity.WATCHABLE_URL);
 
         final VideoSupportFragmentGlueHost glueHost = new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
 
-        final SimpleExoPlayer simpleExoPlayer = new SimpleExoPlayer.Builder(getContext())
+        final ExoPlayer simpleExoPlayer = new ExoPlayer.Builder(Objects.requireNonNull(getContext()))
+                .setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT)
                 .setLoadControl(getLoadControl())
                 .build();
         //Exo player
         simpleExoPlayer.setRepeatMode(Player.REPEAT_MODE_OFF);
 
-
         final LeanbackPlayerAdapter player = new LeanbackPlayerAdapter(getContext(), simpleExoPlayer, 1000);
 
         this.mTransportControlGlue = new PlaybackTransportControlGlue<>(getContext(), player);
-
         mTransportControlGlue.setSeekEnabled(true);
         mTransportControlGlue.setHost(glueHost);
         mTransportControlGlue.setTitle(watchable.getTitle());
@@ -74,7 +76,6 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
             videoSource = new ProgressiveMediaSource.Factory(defaultHttpDataSource)
                     .createMediaSource(MediaItem.fromUri(Uri.parse(url)));
         }
-
         simpleExoPlayer.addMediaSource(videoSource);
         simpleExoPlayer.seekTo(0);
         simpleExoPlayer.prepare();
@@ -107,3 +108,4 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
         }
     }
 }
+

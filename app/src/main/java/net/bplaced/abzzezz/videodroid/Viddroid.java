@@ -2,7 +2,7 @@ package net.bplaced.abzzezz.videodroid;
 
 import android.app.Activity;
 import android.content.Context;
-import net.bplaced.abzzezz.videodroid.util.themoviedb.WatchableList;
+import net.bplaced.abzzezz.videodroid.util.watchable.WatchableList;
 
 import javax.net.ssl.*;
 import java.security.KeyManagementException;

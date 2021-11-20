@@ -13,18 +13,21 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 public class Vidcloud extends Streamer {
 
+    //TODO: Forge API (https://github.com/JohnnyBlackwater/Zephyr-mod/blob/2e9472793b45287b1114221f5dd1674ce886bca1/addons/script.module.resolveurl/lib/resolveurl/plugins/vidcloud9.py)
 
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String url, final String[]... headers) throws IOException {
-        url = url.replace("streaming.php", "download").replace("load.php", "download");
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String referral, final Optional<Map<String, String>> headers) throws IOException {
+        referral = referral.replace("streaming.php", "download").replace("load.php", "download");
 
-        Log.d("Stream VIDCloud-Streamer URL", url);
+        Log.d("Stream VIDCloud-Streamer URL", referral);
 
-        final Document document = Jsoup.connect(url)
+        final Document document = Jsoup.connect(referral)
                 .userAgent(Constant.USER_AGENT)
                 .get();
 
@@ -52,7 +55,7 @@ public class Vidcloud extends Streamer {
                     if (stripped.equalsIgnoreCase(value.getAlt()) && !StringUtil.isBlank(downloadElement.attr("href"))) {
                         Optional<ParcelableWatchableURLConnection> watchableURLConnection;
                         try {
-                            watchableURLConnection = value.getStreamer().resolveStreamURL(downloadElement.attr("href"), new String[]{"Referer", url});
+                            watchableURLConnection = value.getStreamer().resolveStreamURL(downloadElement.attr("href"), Optional.of(Collections.singletonMap("Referer", referral)));
                         } catch (IOException | JSONException e) {
                             continue;
                         }

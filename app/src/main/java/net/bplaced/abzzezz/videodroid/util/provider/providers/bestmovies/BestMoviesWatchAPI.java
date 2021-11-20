@@ -1,4 +1,4 @@
-package net.bplaced.abzzezz.videodroid.util.provider.providers.bestmovieswatch;
+package net.bplaced.abzzezz.videodroid.util.provider.providers.bestmovies;
 
 import net.bplaced.abzzezz.videodroid.util.string.StringUtil;
 

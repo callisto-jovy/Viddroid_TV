@@ -1,10 +1,7 @@
-package net.bplaced.abzzezz.videodroid.util.themoviedb;
+package net.bplaced.abzzezz.videodroid.util.watchable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import net.bplaced.abzzezz.videodroid.util.watchable.Movie;
-import net.bplaced.abzzezz.videodroid.util.watchable.TVShow;
-import net.bplaced.abzzezz.videodroid.util.watchable.Watchable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,9 +14,12 @@ import java.util.Optional;
 public final class WatchableList {
 
 
+    public static final String[] WATCHABLE_CATEGORIES = {
+            "Favorites",
+            "Marked"
+    };
     private final SharedPreferences sharedPreferences;
     private final SharedPreferences.Editor editor;
-
     private final List<Watchable> favorites = new ArrayList<>();
     private final List<Watchable> marked = new ArrayList<>();
 
@@ -88,15 +88,9 @@ public final class WatchableList {
         editor.commit();
     }
 
-
     public Watchable deserializeWatchable(final JSONObject jsonObject) throws JSONException, UnsupportedEncodingException {
         return jsonObject.optBoolean("tv") ? new TVShow(jsonObject) : new Movie(jsonObject);
     }
-
-    public static final String[] WATCHABLE_CATEGORIES = {
-            "Favorites",
-            "Marked"
-    };
 
     public List<Watchable> getFavorites() {
         return favorites;

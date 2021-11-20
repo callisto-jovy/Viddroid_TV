@@ -14,13 +14,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class Gomo extends Streamer implements MoviesCoAPI {
 
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(final String url, final String[]... headers) throws IOException, JSONException {
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(final String url, final Optional<Map<String, String>> headers) throws IOException, JSONException {
         if (StringUtil.isBlank(url)) return Optional.empty();
 
         final Document embedPlayer = Jsoup.connect(url)
@@ -98,7 +100,7 @@ public class Gomo extends Streamer implements MoviesCoAPI {
                             final Matcher sourceMatcher = SOURCE_PATTERN.matcher(unpacker.unpack());
 
                             if (sourceMatcher.find()) {
-                                return Optional.of(new ParcelableWatchableURLConnection(sourceMatcher.group(), new String[]{"Referer", referral}));
+                                return Optional.of(new ParcelableWatchableURLConnection(sourceMatcher.group(), Collections.singletonMap("Referer", referral)));
                             }
                         }
 

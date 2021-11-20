@@ -1,4 +1,4 @@
-package net.bplaced.abzzezz.videodroid.util.provider.providers.videovakcom;
+package net.bplaced.abzzezz.videodroid.util.provider.providers.videovak;
 
 import net.bplaced.abzzezz.videodroid.util.string.StringUtil;
 

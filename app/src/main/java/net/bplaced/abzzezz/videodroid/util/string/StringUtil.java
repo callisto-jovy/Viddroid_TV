@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class StringUtil {
 
-    public static final String ALLOWED_URL_SPECIAL_CHARS = "[^$–_.+!*‘(),\\p{L}\\p{N}]";
+    public static final String ALLOWED_URL_SPECIAL_CHARS = "[^–\\p{L}\\p{N}]";
 
     public static String dashes(final String string) {
         return Pattern.compile(ALLOWED_URL_SPECIAL_CHARS)

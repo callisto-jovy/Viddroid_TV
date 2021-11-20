@@ -1,10 +1,10 @@
 package net.bplaced.abzzezz.videodroid.util.task.tasks.tv;
 
 import net.bplaced.abzzezz.videodroid.util.Constant;
+import net.bplaced.abzzezz.videodroid.util.array.ArrayUtil;
 import net.bplaced.abzzezz.videodroid.util.connection.ParcelableWatchableURLConnection;
 import net.bplaced.abzzezz.videodroid.util.connection.URLUtil;
-import net.bplaced.abzzezz.videodroid.util.provider.providers.videovakcom.VideovakComAPI;
-import net.bplaced.abzzezz.videodroid.util.task.TaskExecutor;
+import net.bplaced.abzzezz.videodroid.util.provider.providers.videovak.VideovakComAPI;
 import net.bplaced.abzzezz.videodroid.util.watchable.TVShow;
 import org.jsoup.internal.StringUtil;
 
@@ -12,21 +12,11 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
-public class VideovakComRequestTVLinkTask extends TaskExecutor implements Callable<Optional<ParcelableWatchableURLConnection>>, VideovakComAPI {
+public class VideovakComRequestTVLinkTask extends TVLinkTask implements VideovakComAPI {
 
-    private final TVShow mTVShow;
-    private final int season, episode;
-
-    public VideovakComRequestTVLinkTask(final TVShow mTVShow, int season1, int episode1) {
-        this.mTVShow = mTVShow;
-        this.season = season1;
-        this.episode = episode1;
-    }
-
-    public void executeAsync(final Callback<Optional<ParcelableWatchableURLConnection>> callback) {
-        super.executeAsync(this, callback);
+    public VideovakComRequestTVLinkTask(TVShow tvShow, int season, int episode) {
+        super(tvShow, season, episode);
     }
 
     @Override
@@ -41,7 +31,7 @@ public class VideovakComRequestTVLinkTask extends TaskExecutor implements Callab
         httpsURLConnection.connect();
 
         try (final OutputStream os = httpsURLConnection.getOutputStream()) {
-            os.write(("temp_request=" + formatStreamTemp(mTVShow.getTitle(), season, episode)).getBytes(StandardCharsets.UTF_8));
+            os.write(("temp_request=" + formatStreamTemp(getTvShow().getTitle(), getSeason(), getEpisode())).getBytes(StandardCharsets.UTF_8));
         }
 
         String resp = URLUtil.collectLines(httpsURLConnection);
@@ -56,8 +46,9 @@ public class VideovakComRequestTVLinkTask extends TaskExecutor implements Callab
         return Optional.of(new ParcelableWatchableURLConnection
                 (
                         embed,
-                        new String[]{"Referrer", BASE_URL},
-                        new String[]{"Range", "bytes=0-"})
+                        ArrayUtil.stringArrayToMap(
+                                new String[]{"Referrer", BASE_URL},
+                                new String[]{"Range", "bytes=0-"}))
         );
     }
 }

@@ -9,13 +9,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class DoodStream extends Streamer {
 
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(final String url, final String[]... headers) throws IOException {
-        final Document initialDocument = Jsoup.connect(url)
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(final String referral, final Optional<Map<String, String>> headers) throws IOException {
+        final Document initialDocument = Jsoup.connect(referral)
+                .headers(headers.orElseGet(HashMap::new))
                 .userAgent(Constant.USER_AGENT)
                 .get();
 
@@ -30,7 +34,7 @@ public class DoodStream extends Streamer {
             return Optional.empty();
 
         final Document downloadPageDocument = Jsoup.connect("https://dood.la" + downloadURL)
-                .referrer(url)
+                .referrer(referral)
                 .userAgent(Constant.USER_AGENT)
                 .get();
 
@@ -45,6 +49,6 @@ public class DoodStream extends Streamer {
         final int index = onClickValue.indexOf("window.open('");
         final String substring = onClickValue.substring(index + "window.open('".length(), onClickValue.indexOf("'", index));
 
-        return Optional.of(new ParcelableWatchableURLConnection(substring, new String[]{"Referer", downloadURL}));
+        return Optional.of(new ParcelableWatchableURLConnection(substring, Collections.singletonMap("Referer", downloadURL)));
     }
 }

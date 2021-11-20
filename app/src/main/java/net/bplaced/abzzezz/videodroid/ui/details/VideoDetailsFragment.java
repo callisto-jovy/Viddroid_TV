@@ -18,15 +18,20 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import net.bplaced.abzzezz.videodroid.R;
 import net.bplaced.abzzezz.videodroid.Viddroid;
+import net.bplaced.abzzezz.videodroid.ui.error.BrowseErrorActivity;
 import net.bplaced.abzzezz.videodroid.ui.main.MainActivity;
 import net.bplaced.abzzezz.videodroid.ui.playback.PlaybackActivity;
-import net.bplaced.abzzezz.videodroid.ui.presenter.CardEpisodePresenter;
+import net.bplaced.abzzezz.videodroid.ui.presenter.CardPresenter;
+import net.bplaced.abzzezz.videodroid.util.IntentHelper;
 import net.bplaced.abzzezz.videodroid.util.connection.ParcelableWatchableURLConnection;
+import net.bplaced.abzzezz.videodroid.util.provider.ProviderProperties;
 import net.bplaced.abzzezz.videodroid.util.provider.Providers;
-import net.bplaced.abzzezz.videodroid.util.watchable.Episode;
 import net.bplaced.abzzezz.videodroid.util.watchable.Movie;
 import net.bplaced.abzzezz.videodroid.util.watchable.TVShow;
 import net.bplaced.abzzezz.videodroid.util.watchable.Watchable;
+import net.bplaced.abzzezz.videodroid.util.watchable.models.Episode;
+import net.bplaced.abzzezz.videodroid.util.watchable.models.Season;
+import org.json.JSONArray;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -41,7 +46,6 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
 
     private static final String TAG = "VideoDetailsFragment";
 
-
     private static final int DETAIL_THUMB_WIDTH = 300;
     private static final int DETAIL_THUMB_HEIGHT = 450;
 
@@ -54,8 +58,6 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
 
     private ArrayObjectAdapter actionAdapter;
 
-    private int season, episode;
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         Log.d(TAG, "onCreate DetailsFragment");
@@ -63,7 +65,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
 
         this.mDetailsBackground = new DetailsSupportFragmentBackgroundController(this);
 
-        this.mSelectedWatchable = (Watchable) getActivity().getIntent().getSerializableExtra(DetailsActivity.WATCHABLE);
+        this.mSelectedWatchable = (Watchable) IntentHelper.getObjectForKey(DetailsActivity.WATCHABLE);
 
         if (mSelectedWatchable != null) {
             this.mPresenterSelector = new ClassPresenterSelector();
@@ -79,9 +81,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
             initializeBackground(mSelectedWatchable);
             setOnItemViewClickedListener((itemViewHolder, item, rowViewHolder, row) -> {
                 if (item instanceof Episode) {
-                    final Episode e = (Episode) item;
-                    episode = e.getIndex() + 1;
-                    season = e.getSeason();
+                    playback((Episode) item);
                 }
             });
         } else {
@@ -111,13 +111,15 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
     }
 
     private void setupDetailsOverviewRow() {
+        assert getActivity() != null;
+        assert getContext() != null;
+
         Log.d(TAG, "doInBackground: " + mSelectedWatchable.toString());
         final DetailsOverviewRow upperRow = new DetailsOverviewRow(mSelectedWatchable);
         upperRow.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.default_background));
 
         final int width = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
         final int height = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
-
 
         Glide.with(getActivity())
                 .load(mSelectedWatchable.getCardImageUrl())
@@ -137,6 +139,11 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
                     }
                 });
 
+        this.setupActions(upperRow);
+        this.setupRows();
+    }
+
+    private void setupActions(final DetailsOverviewRow upperRow) {
         final boolean isFavorite = Viddroid.INSTANCE.getWatchableList().isFavorite(mSelectedWatchable);
         final boolean isMarked = Viddroid.INSTANCE.getWatchableList().isMarked(mSelectedWatchable);
 
@@ -149,31 +156,40 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
                 isMarked ? getString(R.string.rem_bookmark) : getString(R.string.add_bookmark),
                 isMarked ? getContext().getDrawable(R.drawable.outline_bookmark_24) : getContext().getDrawable(R.drawable.outline_bookmark_border_24)));
 
-
-        for (int i = 0; i < Providers.values().length; i++) {
-            actionAdapter.add(new Action(actionAdapter.size() + i, Providers.values()[i].getLanguage(), Providers.values()[i].name()));
-        }
-
         upperRow.setActionsAdapter(actionAdapter);
         mAdapter.add(upperRow);
+    }
 
+    private void setupRows() {
         if (mSelectedWatchable instanceof TVShow) {
             final TVShow mSelectedTVShow = (TVShow) mSelectedWatchable;
+            final CardPresenter cardPresenter = new CardPresenter();
 
-            final CardEpisodePresenter cardEpisodePresenter = new CardEpisodePresenter();
-
-            for (int i = 0; i < mSelectedTVShow.getSeasons().length; i++) {
-                final int value = mSelectedTVShow.getSeasons()[i];
-
-                final ArrayObjectAdapter episodeListRow = new ArrayObjectAdapter(cardEpisodePresenter);
+            for (int i = 0; i < mSelectedTVShow.getSeasons().length(); i++) {
                 final HeaderItem seasonHeader = new HeaderItem(i, "Season " + i);
+                final ArrayObjectAdapter episodeListRow = new ArrayObjectAdapter(cardPresenter);
 
-                for (int j = 0; j < value; j++) {
-                    episodeListRow.add(new Episode(j, i, mSelectedTVShow.getSeasonPoster(i)));
+                final Optional<Season> value = mSelectedTVShow.getSeason(i);
+
+                if (value.isPresent()) {
+                    final Season season = value.get();
+
+                    Optional<JSONArray> seasonEpisodesOptional = value.get().getSeasonEpisodes();
+
+                    if (seasonEpisodesOptional.isPresent()) {
+                        final JSONArray seasonEpisodes = seasonEpisodesOptional.get();
+                        for (int j = 0; j < seasonEpisodes.length(); j++) {
+                            final Episode episode = (Episode) seasonEpisodes.opt(j);
+
+                            if (episode != null)
+                                episodeListRow.add(episode.setIndices(new int[]{season.getSeasonNumber().orElse(i), j + 1}));
+                        }
+                    }
                 }
-
                 mAdapter.add(new ListRow(seasonHeader, episodeListRow));
             }
+        } else {
+            actionAdapter.add(new Action(69, "Play"));
         }
     }
 
@@ -216,8 +232,10 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
                     actionAdapter.notifyArrayItemRangeChanged(1, 2);
                     break;
 
+                case 69:
+                    playback(null);
+                    break;
                 default:
-                    playback(action);
                     break;
 
             }
@@ -225,26 +243,40 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
     }
 
-    private void playback(final Action action) {
+    private void playback(Episode episode) {
+        if (episode == null && mSelectedWatchable instanceof TVShow)
+            return;
+
         final ProgressDialog mDialog = new ProgressDialog(getContext());
         mDialog.setMessage("Loading...");
         mDialog.setCancelable(false);
         mDialog.show();
 
+        //TODO:
         if (mSelectedWatchable instanceof TVShow)
-            Providers.valueOf(action.getLabel2().toString())
-                    .getProvider()
-                    .requestTVLink((TVShow) mSelectedWatchable, season, episode, s -> startPlayback(s, mDialog));
+            Providers
+                    .resolveTV((TVShow) mSelectedWatchable,
+                            episode,
+                            ProviderProperties.STREAMS_TV,
+                            urlConnection -> startPlayback(urlConnection, mDialog),
+                            exception -> showErrorFragment(mDialog));
         else
-            Providers.valueOf(action.getLabel2().toString())
-                    .getProvider()
-                    .requestMovieLink((Movie) mSelectedWatchable, s -> startPlayback(s, mDialog));
+            Providers.resolveMovie((Movie) mSelectedWatchable,
+                    ProviderProperties.STREAMS_MOVIE,
+                    urlConnection -> startPlayback(urlConnection, mDialog),
+                    exception -> showErrorFragment(mDialog));
+    }
+
+    private void showErrorFragment(final ProgressDialog progressDialog) {
+        progressDialog.cancel();
+        final Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
+        startActivity(intent);
     }
 
     private void startPlayback(final Optional<ParcelableWatchableURLConnection> parcelableMovieURLConnection, final ProgressDialog progressDialog) {
         if (parcelableMovieURLConnection.isPresent()) {
             final Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-            intent.putExtra(DetailsActivity.WATCHABLE, mSelectedWatchable);
+            IntentHelper.addObjectForKey(mSelectedWatchable, DetailsActivity.WATCHABLE);
             intent.putExtra(DetailsActivity.WATCHABLE_URL, parcelableMovieURLConnection.get());
             startActivity(intent);
         } else {

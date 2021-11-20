@@ -8,6 +8,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,10 +19,10 @@ public class MixDrop extends Streamer {
     public static final Pattern MIXDROP_WURL_PATTERN = Pattern.compile("(?<=MDCore.wurl=\")[^\"]+");
 
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String url, final String[]... headers) throws IOException {
-        url = url.replace("/f/", "/e/");
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String referral, final Optional<Map<String, String>> headers) throws IOException {
+        referral = referral.replace("/f/", "/e/");
 
-        final Document document = Jsoup.connect(url).get();
+        final Document document = Jsoup.connect(referral).get();
 
         final Element scriptElement = document.getElementsByTag("script")
                 .stream()
@@ -37,7 +39,7 @@ public class MixDrop extends Streamer {
         if (wurlPatternMatcher.find()) {
             final String directURL = "https://" + wurlPatternMatcher.group().replaceAll("&_t=(.*)+", "");
 
-            return Optional.of(new ParcelableWatchableURLConnection(directURL, new String[]{"Referer", "https://mixdrop.co/"}));
+            return Optional.of(new ParcelableWatchableURLConnection(directURL, Collections.singletonMap("Referer", "https://mixdrop.co/")));
         }
         return Optional.empty();
     }

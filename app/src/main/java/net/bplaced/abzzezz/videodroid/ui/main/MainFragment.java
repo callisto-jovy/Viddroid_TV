@@ -27,10 +27,11 @@ import net.bplaced.abzzezz.videodroid.R;
 import net.bplaced.abzzezz.videodroid.Viddroid;
 import net.bplaced.abzzezz.videodroid.ui.details.DetailsActivity;
 import net.bplaced.abzzezz.videodroid.ui.error.BrowseErrorActivity;
-import net.bplaced.abzzezz.videodroid.ui.presenter.CardWatchablePresenter;
+import net.bplaced.abzzezz.videodroid.ui.presenter.CardPresenter;
 import net.bplaced.abzzezz.videodroid.ui.search.SearchActivity;
-import net.bplaced.abzzezz.videodroid.util.themoviedb.WatchableList;
+import net.bplaced.abzzezz.videodroid.util.IntentHelper;
 import net.bplaced.abzzezz.videodroid.util.watchable.Watchable;
+import net.bplaced.abzzezz.videodroid.util.watchable.WatchableList;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -77,8 +78,7 @@ public class MainFragment extends BrowseSupportFragment {
 
     private void loadRows() {
         final ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        final CardWatchablePresenter cardPresenter = new CardWatchablePresenter();
-
+        final CardPresenter cardPresenter = new CardPresenter();
 
         for (int i = 0; i < WatchableList.WATCHABLE_CATEGORIES.length; i++) {
             final HeaderItem headerItem = new HeaderItem(i, WatchableList.WATCHABLE_CATEGORIES[i]);
@@ -88,7 +88,6 @@ public class MainFragment extends BrowseSupportFragment {
             }
 
             rowsAdapter.add(new ListRow(headerItem, listRowAdapter));
-
         }
         final HeaderItem gridHeader = new HeaderItem(WatchableList.WATCHABLE_CATEGORIES.length, "PREFERENCES");
 
@@ -182,7 +181,7 @@ public class MainFragment extends BrowseSupportFragment {
                 Log.d(TAG, "Item: " + item);
 
                 final Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.WATCHABLE, watchable);
+                IntentHelper.addObjectForKey(watchable, DetailsActivity.WATCHABLE);
                 final Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                                 getActivity(),
                                 ((ImageCardView) itemViewHolder.view).getMainImageView(),

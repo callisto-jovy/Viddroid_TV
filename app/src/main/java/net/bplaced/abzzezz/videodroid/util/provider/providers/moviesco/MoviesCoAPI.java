@@ -1,7 +1,6 @@
 package net.bplaced.abzzezz.videodroid.util.provider.providers.moviesco;
 
 import net.bplaced.abzzezz.videodroid.util.string.StringUtil;
-import net.bplaced.abzzezz.videodroid.util.watchable.Movie;
 import net.bplaced.abzzezz.videodroid.util.watchable.TVShow;
 
 import java.util.regex.Pattern;
@@ -34,7 +33,7 @@ public interface MoviesCoAPI {
         return BASE_URL + TV_ENDPOINT + StringUtil.dashes(tvShow.getTitle()) + "-" + season + "x" + episode + "/watching.html";
     }
 
-    default String formatMovieRequest(final Movie movie) {
-        return BASE_URL + MOVIE_ENDPOINT + StringUtil.dashes(movie.getTitle()) + "/watching.html";
+    default String formatMovieRequest(final String title) {
+        return BASE_URL + MOVIE_ENDPOINT + StringUtil.dashes(title) + "/watching.html";
     }
 }
