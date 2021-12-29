@@ -49,7 +49,6 @@ public class StreamSb extends Streamer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
             try {
                 Document content = Jsoup.connect(format)
                         .userAgent(Constant.USER_AGENT)

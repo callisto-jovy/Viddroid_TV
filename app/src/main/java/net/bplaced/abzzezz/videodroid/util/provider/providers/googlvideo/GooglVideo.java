@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 
 public class GooglVideo extends Provider {
 
+
     @Override
     public void requestMovieLink(Movie watchable, Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer, Consumer<String> exceptionConsumer) {
         directConnectionConsumer.accept(Optional.empty());

@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.json:json:20210307'
     // https://mvnrepository.com/artifact/org.jsoup/jsoup
     implementation 'org.jsoup:jsoup:1.14.3'
-    implementation 'com.google.android.exoplayer:exoplayer:2.16.0'
-    implementation 'com.google.android.exoplayer:extension-leanback:2.16.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+    implementation 'com.google.android.exoplayer:extension-leanback:2.16.1'
     implementation 'com.google.code.gson:gson:2.8.9'
 }

@@ -21,7 +21,6 @@ public class VideovakComRequestTVLinkTask extends TVLinkTask implements Videovak
 
     @Override
     public Optional<ParcelableWatchableURLConnection> call() throws Exception {
-        //TODO: JSOUP refactor
         final HttpsURLConnection httpsURLConnection = URLUtil.createHTTPSURLConnection(STREAM_API_RESOLVER_ENDPOINT,
                 new String[]{"Content-type", "application/x-www-form-urlencoded"},
                 new String[]{"User-Agent", Constant.USER_AGENT});

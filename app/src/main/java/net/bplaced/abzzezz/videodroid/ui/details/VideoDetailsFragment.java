@@ -33,6 +33,7 @@ import net.bplaced.abzzezz.videodroid.util.watchable.models.Episode;
 import net.bplaced.abzzezz.videodroid.util.watchable.models.Season;
 import org.json.JSONArray;
 
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -257,14 +258,15 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
             Providers
                     .resolveTV((TVShow) mSelectedWatchable,
                             episode,
-                            ProviderProperties.STREAMS_TV,
+                            EnumSet.of(ProviderProperties.STREAMS_TV),
                             urlConnection -> startPlayback(urlConnection, mDialog),
                             exception -> showErrorFragment(mDialog));
         else
-            Providers.resolveMovie((Movie) mSelectedWatchable,
-                    ProviderProperties.STREAMS_MOVIE,
-                    urlConnection -> startPlayback(urlConnection, mDialog),
-                    exception -> showErrorFragment(mDialog));
+            Providers
+                    .resolveMovie((Movie) mSelectedWatchable,
+                            EnumSet.of(ProviderProperties.STREAMS_MOVIE),
+                            urlConnection -> startPlayback(urlConnection, mDialog),
+                            exception -> showErrorFragment(mDialog));
     }
 
     private void showErrorFragment(final ProgressDialog progressDialog) {

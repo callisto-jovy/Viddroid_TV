@@ -22,8 +22,6 @@ public class MoviesCoRequestTVLinkTask extends TVLinkTask implements MoviesCoAPI
     public Optional<ParcelableWatchableURLConnection> call() throws Exception {
         final String url = formatTvRequest(getTvShow(), getSeason(), getEpisode());
 
-        System.out.println(url);
-
         final Document document = Jsoup.connect(url)
                 .userAgent(Constant.USER_AGENT)
                 .get();

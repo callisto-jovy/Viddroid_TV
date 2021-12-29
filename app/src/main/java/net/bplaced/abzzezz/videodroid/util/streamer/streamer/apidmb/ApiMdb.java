@@ -36,16 +36,17 @@ public class ApiMdb extends Streamer implements ApiMdbAPI {
             final String text = element.text();
             if (!StringUtil.isBlank(attr) && !StringUtil.isBlank(text)) {
                 for (final Streamers value : Streamers.values()) {
-                    if (value.getAlt().equalsIgnoreCase(text)) {
-
+                    if (value.getAlt().contains(text)) {
                         final Document document = Jsoup
-                                .connect(BASE_URL + attr)
+                                .connect(BASE_URL)
                                 .followRedirects(true)
                                 .referrer(referrer)
                                 .userAgent(Constant.USER_AGENT)
                                 .get();
 
                         final Element selectedElement = document.getElementById("frame");
+                        if (selectedElement == null)
+                            continue;
 
                         if (!selectedElement.hasAttr("src"))
                             continue;
