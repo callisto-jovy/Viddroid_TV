@@ -13,12 +13,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 public class ApiMdb extends Streamer implements ApiMdbAPI {
     @Override
-    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String referral, Optional<Map<String, String>> headers) throws IOException, JSONException {
+    public Optional<ParcelableWatchableURLConnection> resolveStreamURL(String referral, Optional<Map<String, String>> headers) throws JSONException, IOException {
         if (StringUtil.isBlank(referral))
             return Optional.empty();
 
@@ -31,14 +32,16 @@ public class ApiMdb extends Streamer implements ApiMdbAPI {
 
         final Elements streamList = apiDocument.select(".server");
 
-        for (final Element element : streamList) {
-            final String attr = element.attr("data-src");
-            final String text = element.text();
-            if (!StringUtil.isBlank(attr) && !StringUtil.isBlank(text)) {
-                for (final Streamers value : Streamers.values()) {
+
+        for (final Streamers value : Streamers.values()) {
+            for (final Element element : streamList) {
+                final String attr = element.attr("data-src");
+                final String text = element.text();
+                if (!StringUtil.isBlank(attr) && !StringUtil.isBlank(text)) {
                     if (value.getAlt().contains(text)) {
+
                         final Document document = Jsoup
-                                .connect(BASE_URL)
+                                .connect(BASE_URL + attr)
                                 .followRedirects(true)
                                 .referrer(referrer)
                                 .userAgent(Constant.USER_AGENT)
@@ -48,16 +51,22 @@ public class ApiMdb extends Streamer implements ApiMdbAPI {
                         if (selectedElement == null)
                             continue;
 
+
                         if (!selectedElement.hasAttr("src"))
                             continue;
 
-                        final Optional<ParcelableWatchableURLConnection> parcelableMovieURLConnectionOptional = value.getStreamer().resolveStreamURL(selectedElement.attr("src"), Optional.empty());
+                        final String src = selectedElement.attr("src");
 
-                        if (!parcelableMovieURLConnectionOptional.isPresent())
-                            continue;
+                        try {
+                            final Optional<ParcelableWatchableURLConnection> parcelableMovieURLConnectionOptional = value.getStreamer().
+                                    resolveStreamURL(src, Optional.of(Collections.singletonMap("Referrer", referral)));
+                            if (!parcelableMovieURLConnectionOptional.isPresent())
+                                continue;
 
-                        return parcelableMovieURLConnectionOptional;
-
+                            return parcelableMovieURLConnectionOptional;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

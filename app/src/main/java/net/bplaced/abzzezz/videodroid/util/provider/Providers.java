@@ -41,7 +41,6 @@ public enum Providers {
         return properties;
     }
 
-
     private static List<Providers> compileProviders(final EnumSet<ProviderProperties> mask) {
         List<Providers> providers = new ArrayList<>();
         for (Providers value : Providers.values()) {
@@ -60,7 +59,8 @@ public enum Providers {
                                   final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
                                   final Consumer<String> exceptionConsumer) {
 
-        for (final Providers provider : providers) {
+        if (providers.size() > 1) {
+            final Providers provider = providers.get(0);
             provider.getProvider().requestTVLink(watchable, episode, urlConnection -> {
                 if (urlConnection.isPresent()) {
                     directConnectionConsumer.accept(urlConnection);
@@ -77,8 +77,9 @@ public enum Providers {
                                      final List<Providers> providers,
                                      final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
                                      final Consumer<String> exceptionConsumer) {
+        if (providers.size() > 1) {
+            final Providers provider = providers.get(0);
 
-        for (final Providers provider : providers) {
             provider.getProvider().requestMovieLink(watchable, urlConnection -> {
                 if (urlConnection.isPresent()) {
                     directConnectionConsumer.accept(urlConnection);

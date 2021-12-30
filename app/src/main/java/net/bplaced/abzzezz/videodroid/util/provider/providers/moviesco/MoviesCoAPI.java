@@ -24,8 +24,9 @@ public interface MoviesCoAPI {
 
 
     Pattern SLICE_PATTERN = Pattern.compile("slice\\((\\d),(\\d+)\\)");
-
     Pattern RND_NUM_PATTERN = Pattern.compile("\\+ \"(\\d+)\"\\+\"(\\d+)");
+
+    Pattern JSON_ARRAY_PATTERN = Pattern.compile("\\[(.*)+]");
 
 
     default String formatTvRequest(final TVShow tvShow, final int season, final int episode) {

@@ -55,7 +55,7 @@ public class MainFragment extends BrowseSupportFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         super.onViewCreated(view, savedInstanceState);
 
         Viddroid.INSTANCE.setup(getActivity());

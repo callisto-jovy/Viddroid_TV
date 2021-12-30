@@ -76,9 +76,14 @@ public class Gomo extends Streamer implements MoviesCoAPI {
                         .userAgent(Constant.USER_AGENT)
                         .execute();
 
-                if (StringUtil.isBlank(decodingAPIResp.body())) return Optional.empty();
 
-                final JSONArray referralArray = new JSONArray(decodingAPIResp.body());
+                final Matcher jsonArrayMatcher = JSON_ARRAY_PATTERN.matcher(decodingAPIResp.body());
+
+                if (StringUtil.isBlank(decodingAPIResp.body()) || !jsonArrayMatcher.find())
+                    return Optional.empty();
+
+
+                final JSONArray referralArray = new JSONArray(jsonArrayMatcher.group());
 
                 for (int i = 0; i < referralArray.length(); i++) {
                     final String referral = referralArray.getString(i);

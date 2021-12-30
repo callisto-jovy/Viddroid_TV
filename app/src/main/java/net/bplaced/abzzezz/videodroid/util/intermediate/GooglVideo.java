@@ -16,14 +16,16 @@ public class GooglVideo {
     public static Optional<String> resolveURL(String referral, Optional<Map<String, String>> headers) throws IOException {
         final Document document = Jsoup.connect(referral)
                 .userAgent(Constant.USER_AGENT)
-                .headers(headers.orElse(new HashMap<>()))
+                .headers(headers.orElseGet(HashMap::new))
                 .get();
 
-        String ref = document.getElementsByTag("iframe")
+        System.out.println(document.body());
+
+        final String ref = document.getElementsByTag("iframe")
                 .get(0)
                 .attr("src");
 
-        Connection.Response response = Jsoup.connect(ref)
+        final Connection.Response response = Jsoup.connect(ref)
                 .userAgent(Constant.USER_AGENT)
                 .referrer(referral)
                 .followRedirects(true)

@@ -19,23 +19,31 @@ public class DoodStream extends Streamer implements DoodStreamAPI {
 
     @Override
     public Optional<ParcelableWatchableURLConnection> resolveStreamURL(final String referral, final Optional<Map<String, String>> headers) throws IOException {
+        if (StringUtil.isBlank(referral))
+            return Optional.empty();
+
         final Document initialDocument = Jsoup.connect(referral)
                 .headers(headers.orElseGet(HashMap::new))
                 .userAgent(Constant.USER_AGENT)
                 .get();
 
-        if (initialDocument == null) {
+        if (StringUtil.isBlank(initialDocument.toString())) {
             return Optional.empty();
         }
 
         final Matcher matcher = PASS_MD_5_PATTERN.matcher(initialDocument.toString());
         if (matcher.find()) {
-            String passMD5 = matcher.group();
-            String passMD5URL = BASE_URL + passMD5;
+            final String passMD5 = matcher.group();
+            final String token = passMD5.substring(passMD5.lastIndexOf('/') + 1);
+            System.out.println("token = " + token);
 
-            Connection.Response response = Jsoup.connect(passMD5URL)
+
+            final String passMD5URL = BASE_URL + passMD5;
+
+            final Connection.Response response = Jsoup.connect(passMD5URL)
                     .method(Connection.Method.GET)
-                    .userAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.13) Gecko/20080313 Firefox")
+                    .userAgent(Constant.USER_AGENT)
+                    .header("X-Requested-With", "XMLHttpRequest")
                     .referrer(referral)
                     .execute();
 
@@ -43,13 +51,13 @@ public class DoodStream extends Streamer implements DoodStreamAPI {
                 return Optional.empty();
 
 
-            String responseBody = response.body() + generateToken();
+            final String responseBody = response.body() + generateSuffix(token);
 
 
-            Log.i("DoodStream", responseBody);
-            Map<String, String> map = new HashMap<>();
-            map.put("Referrer", referral);
-            map.put("bytes=", "0-");
+            Log.d("DoodStream", responseBody);
+            final Map<String, String> map = new HashMap<>();
+            map.put("Referrer", BASE_URL);
+            map.put("Range", "bytes=0-");
 
             return Optional.of(new ParcelableWatchableURLConnection(responseBody, map));
         } else

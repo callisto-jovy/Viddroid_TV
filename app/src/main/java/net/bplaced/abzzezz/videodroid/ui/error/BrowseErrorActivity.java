@@ -36,7 +36,7 @@ public class BrowseErrorActivity extends FragmentActivity {
                     .replace(R.id.main_browse_fragment, new MainFragment())
                     .commitNow();
         }
-        testError();
+        //testError();
     }
 
     private void testError() {

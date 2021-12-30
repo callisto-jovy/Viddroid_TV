@@ -40,9 +40,10 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
         final VideoSupportFragmentGlueHost glueHost = new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);
 
         final ExoPlayer simpleExoPlayer = new ExoPlayer.Builder(Objects.requireNonNull(getContext()))
-                .setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT)
+                .setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
                 .setLoadControl(getLoadControl())
                 .build();
+
         //Exo player
         simpleExoPlayer.setRepeatMode(Player.REPEAT_MODE_OFF);
 
@@ -83,7 +84,7 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
 
 
     private LoadControl getLoadControl() {
-        DefaultLoadControl.Builder builder = new DefaultLoadControl.Builder();
+        final DefaultLoadControl.Builder builder = new DefaultLoadControl.Builder();
 
         builder.setBufferDurationsMs(
                 50000, // DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
