@@ -16,6 +16,7 @@ import androidx.leanback.widget.*;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+
 import net.bplaced.abzzezz.videodroid.R;
 import net.bplaced.abzzezz.videodroid.Viddroid;
 import net.bplaced.abzzezz.videodroid.ui.error.BrowseErrorActivity;
@@ -33,6 +34,7 @@ import net.bplaced.abzzezz.videodroid.util.watchable.models.Episode;
 import net.bplaced.abzzezz.videodroid.util.watchable.models.Season;
 import org.json.JSONArray;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -253,20 +255,19 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         mDialog.setCancelable(false);
         mDialog.show();
 
-        //TODO:
         if (mSelectedWatchable instanceof TVShow)
             Providers
                     .resolveTV((TVShow) mSelectedWatchable,
                             episode,
                             EnumSet.of(ProviderProperties.STREAMS_TV),
                             urlConnection -> startPlayback(urlConnection, mDialog),
-                            exception -> showErrorFragment(mDialog));
+                            noProviderConsumer -> showErrorFragment(mDialog));
         else
             Providers
                     .resolveMovie((Movie) mSelectedWatchable,
                             EnumSet.of(ProviderProperties.STREAMS_MOVIE),
                             urlConnection -> startPlayback(urlConnection, mDialog),
-                            exception -> showErrorFragment(mDialog));
+                            noProviderConsumer -> showErrorFragment(mDialog));
     }
 
     private void showErrorFragment(final ProgressDialog progressDialog) {

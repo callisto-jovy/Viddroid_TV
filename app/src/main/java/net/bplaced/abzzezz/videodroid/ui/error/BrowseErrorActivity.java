@@ -2,6 +2,7 @@ package net.bplaced.abzzezz.videodroid.ui.error;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +37,7 @@ public class BrowseErrorActivity extends FragmentActivity {
                     .replace(R.id.main_browse_fragment, new MainFragment())
                     .commitNow();
         }
-        //testError();
+        testError();
     }
 
     private void testError() {
@@ -52,16 +53,13 @@ public class BrowseErrorActivity extends FragmentActivity {
                 .add(R.id.main_browse_fragment, mSpinnerFragment)
                 .commit();
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .remove(mSpinnerFragment)
-                        .commit();
-                mErrorFragment.setErrorContent();
-            }
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(mSpinnerFragment)
+                    .commit();
+            mErrorFragment.setErrorContent();
         }, TIMER_DELAY);
     }
 
@@ -69,7 +67,7 @@ public class BrowseErrorActivity extends FragmentActivity {
         @Override
         public View onCreateView(
                 LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            ProgressBar progressBar = new ProgressBar(container.getContext());
+            final ProgressBar progressBar = new ProgressBar(container.getContext());
             if (container instanceof FrameLayout) {
                 FrameLayout.LayoutParams layoutParams =
                         new FrameLayout.LayoutParams(SPINNER_WIDTH, SPINNER_HEIGHT, Gravity.CENTER);

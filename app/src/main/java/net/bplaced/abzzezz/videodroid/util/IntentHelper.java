@@ -10,7 +10,6 @@ import java.util.Hashtable;
 
 /**
  * Curtsy of https://stackoverflow.com/users/917553/roger-sanoli
- * I fuCKING LOVE YOU. FUCK YOU ANDROID FOR NOT LETTING ME PASS OBJECTS THROUGH INTENTS!!!!!!!!!!
  */
 public class IntentHelper {
 

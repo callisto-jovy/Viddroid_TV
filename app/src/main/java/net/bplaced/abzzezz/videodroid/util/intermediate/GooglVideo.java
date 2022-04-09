@@ -19,8 +19,6 @@ public class GooglVideo {
                 .headers(headers.orElseGet(HashMap::new))
                 .get();
 
-        System.out.println(document.body());
-
         final String ref = document.getElementsByTag("iframe")
                 .get(0)
                 .attr("src");

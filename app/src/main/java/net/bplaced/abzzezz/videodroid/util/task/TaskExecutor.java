@@ -29,8 +29,7 @@ public class TaskExecutor {
                     }
                 });
             } catch (final Exception e) {
-                Log.e("Task Executor", "Error executing task ");
-                e.printStackTrace();
+                Log.e("Task Executor", "Error executing task: " + e.getLocalizedMessage());
                 callback.exceptionCaught(e);
             }
         });

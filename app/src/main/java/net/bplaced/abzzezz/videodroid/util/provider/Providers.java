@@ -27,7 +27,7 @@ public enum Providers {
     MOVIES_CO(new MoviesCo(), EnumSet.of(STREAMS_TV, STREAMS_MOVIE, LANGUAGE_ENGLISH)),
     BEST_MOVIES_WATCH(new BestMoviesWatch(), EnumSet.of(STREAMS_MOVIE, LANGUAGE_ENGLISH)),
     MOVIE_TECH_HUB(new MoviesHubTech(), EnumSet.of(STREAMS_MOVIE, LANGUAGE_ENGLISH)),
-    VIDEOVAK_COM(new VideovakCom(), EnumSet.of(STREAMS_MOVIE, LANGUAGE_ENGLISH));
+    VIDEOVAK_COM(new VideovakCom(), EnumSet.of(STREAMS_TV, LANGUAGE_ENGLISH));
 
     private final EnumSet<ProviderProperties> properties;
     private final Provider provider;
@@ -35,10 +35,6 @@ public enum Providers {
     Providers(final Provider provider, final EnumSet<ProviderProperties> providerProperties) {
         this.provider = provider;
         this.properties = providerProperties;
-    }
-
-    public EnumSet<ProviderProperties> getProperties() {
-        return properties;
     }
 
     private static List<Providers> compileProviders(final EnumSet<ProviderProperties> mask) {
@@ -52,12 +48,11 @@ public enum Providers {
         return providers;
     }
 
-
     private static void resolveTV(final TVShow watchable,
                                   Episode episode,
                                   final List<Providers> providers,
                                   final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
-                                  final Consumer<String> exceptionConsumer) {
+                                  final Consumer<String> noProviderConsumer) {
 
         if (providers.size() > 1) {
             final Providers provider = providers.get(0);
@@ -66,28 +61,39 @@ public enum Providers {
                     directConnectionConsumer.accept(urlConnection);
                 } else {
                     providers.remove(provider); //Exclude provider
-                    resolveTV(watchable, episode, providers, directConnectionConsumer, exceptionConsumer);
+                    resolveTV(watchable, episode, providers, directConnectionConsumer, noProviderConsumer);
                 }
-            }, exceptionConsumer);
+            }, s -> { //Fallback to next provider
+                providers.remove(provider); //Exclude provider
+                resolveTV(watchable, episode, providers, directConnectionConsumer, noProviderConsumer);
+            });
+        } else {
+            noProviderConsumer.accept("No provider found for given media");
         }
     }
-
 
     private static void resolveMovie(final Movie watchable,
                                      final List<Providers> providers,
                                      final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
-                                     final Consumer<String> exceptionConsumer) {
+                                     final Consumer<String> noProviderConsumer) {
         if (providers.size() > 1) {
             final Providers provider = providers.get(0);
 
+
+            System.out.println("providers = " + providers);
             provider.getProvider().requestMovieLink(watchable, urlConnection -> {
                 if (urlConnection.isPresent()) {
                     directConnectionConsumer.accept(urlConnection);
                 } else {
                     providers.remove(provider); //Exclude provider
-                    resolveMovie(watchable, providers, directConnectionConsumer, exceptionConsumer);
+                    resolveMovie(watchable, providers, directConnectionConsumer, noProviderConsumer);
                 }
-            }, exceptionConsumer);
+            }, s -> { //Fallback to next provider
+                providers.remove(provider); //Exclude provider
+                resolveMovie(watchable, providers, directConnectionConsumer, noProviderConsumer);
+            });
+        } else {
+            noProviderConsumer.accept("No provider found for given media");
         }
     }
 
@@ -95,17 +101,20 @@ public enum Providers {
                                  Episode episode,
                                  final EnumSet<ProviderProperties> filter,
                                  final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
-                                 final Consumer<String> exceptionConsumer) {
-        resolveTV(watchable, episode, compileProviders(filter), directConnectionConsumer, exceptionConsumer);
+                                 final Consumer<String> noProviderConsumer) {
+        resolveTV(watchable, episode, compileProviders(filter), directConnectionConsumer, noProviderConsumer);
     }
 
     public static void resolveMovie(final Movie watchable,
                                     final EnumSet<ProviderProperties> filter,
                                     final Consumer<Optional<ParcelableWatchableURLConnection>> directConnectionConsumer,
-                                    final Consumer<String> exceptionConsumer) {
-        resolveMovie(watchable, compileProviders(filter), directConnectionConsumer, exceptionConsumer);
+                                    final Consumer<String> noProviderConsumer) {
+        resolveMovie(watchable, compileProviders(filter), directConnectionConsumer, noProviderConsumer);
     }
 
+    public EnumSet<ProviderProperties> getProperties() {
+        return properties;
+    }
 
     public Provider getProvider() {
         return provider;

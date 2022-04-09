@@ -11,7 +11,7 @@ android {
         minSdkVersion 28
         targetSdkVersion 31
         versionCode 1
-        versionName "1.2"
+        versionName "1.2.1"
         buildConfigField 'String', 'TheMovieDBAPIKey', themoviedbAPIKey
     }
 
@@ -34,5 +34,4 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
     implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
     implementation 'com.google.android.exoplayer:extension-leanback:2.16.1'
-    implementation 'com.google.code.gson:gson:2.8.9'
 }
